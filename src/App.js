@@ -34,19 +34,9 @@ import jQuery from "jquery";
 import { navigate } from "@reach/router";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import TemporaryDrawer from "./Drawer";
-import Alert from "./Alert";
 
 moment.locale("da");
 
-/*
-TODO:
-1. use the filtered list to update the data -- done
-2. add reset btn to the list -- done
-3. Filteredrows to update csv_data. now excel is up to date -- done
-3. Finish the table component to the extra requested columns -- need to be done
-4. Fix map renderfeatures when data is empty
-5. make list to filter generic, not hard coded
-*/
 
 const ExcelFile = ReactExport.ExcelFile;
 const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
@@ -87,7 +77,6 @@ const theme = createMuiTheme({
   }
 });
 
-//TODO: complete the select  comp!!!
 function uniqueValues(colValues) {
   let vals = [...new Set(colValues)];
   return vals;
@@ -181,7 +170,7 @@ class App extends Component {
       kommuner: [],
       komkode: this.props.komnr,// || '165',
      
-      csvData: [], // used for Excel print
+      csvData: [], 
       loading: true,
       completed: 0,
       canSendRequest: false,
@@ -190,12 +179,6 @@ class App extends Component {
       alertOpen: false,
       alertMessage: '',
       uniqueVals: {},
-      /*
-      This is the data which will be rendered and printed by the excel component.
-      All filtering will act on this array. 
-      The reset button will reset this arrat to 
-              dataToRender = this.state.data or this.state.csvData;
-      */
       dataToRender: [] 
     };
 
@@ -221,11 +204,10 @@ class App extends Component {
   doFilter(){
     const uniqueVals = this.state.uniqueVals;
     const filteredCategories = Object.keys(uniqueVals);
-    // console.log(filteredCategories);
     let filters = {};
      filteredCategories.forEach(cat =>{
       let temp = uniqueVals[cat];
-      // console.log(temp)
+      
       filters[cat] = temp.filter(obj => {
         return Object.values(obj)[0] === true;
       })
@@ -237,10 +219,9 @@ class App extends Component {
      const data = dataToRender.filter(row => {
       let res = true;
       filteredCategories.forEach(key =>{
-      //  console.log(row.properties[key]);
-      if(filters[key].length > 0 
-        && filters[key].indexOf(row.properties[key]) === -1)
-             res = false;
+        if(filters[key].length > 0 
+          && filters[key].indexOf(row.properties[key]) === -1)
+              res = false;
       });
       return res;
      });
@@ -268,7 +249,7 @@ class App extends Component {
     });
   }
 
-  handleCheckedFilters(text, event){ //console.log('called with => ', text)
+  handleCheckedFilters(text, event){ 
     let [group, name] = text.split("_");
     let checkedGroup = this.state.uniqueVals[group];
     let indexToUpdate = checkedGroup.findIndex(elem => Object.keys(elem)[0] === name);
@@ -326,15 +307,11 @@ class App extends Component {
       "https://drayton.mapcentia.com/api/v1/sql/ballerup?q=SELECT * FROM cvr.flyt_fad_dev(" +
       komkode +
       ",'"+ startDate +"','"+ endDate +"')&srs=4326";
-    //dataUrl = "data.json";
-    // console.log(dataUrl);
-    jQuery.ajax({
+      jQuery.ajax({
       url: dataUrl,
       type: "GET",
       dataType: "jsonp",
       success: function(res) {
-        //that.setState(preveState => ({ data: res.features }));
-        // console.log(res.features);
         let csv = res.features.map(feature => feature.properties);
         res.features.forEach(feature => {
           let form = feature.properties.virksomhedsform;
@@ -366,7 +343,6 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    //clearInterval(this.timer);
   }
 
   handleChange(event, value) {
@@ -409,16 +385,10 @@ class App extends Component {
             doFilter={this.doFilter}
             filterWords={filterWords}
           />
-
-          {/* <Alert 
-            open={this.state.alertOpen}
-            message={this.state.alertMessage}
-            onClose={this.state.onAlertClose}
-          /> */}
           <div className="">
             <AppBar position="static" color="default">
               <Toolbar>
-                <Grid container /*spacing={}*/>
+                <Grid container>
                   <Grid item xs={3}>
                     <Typography variant="h6" color="inherit">
                       CVR Flyttemønster
@@ -445,11 +415,7 @@ class App extends Component {
                         InputLabelProps={{ shrink: true }}
                       >
                         {kommuner.map(kom => {
-                          let selected =
-                            this.state.komkode === kom.komkode
-                              ? "selected"
-                              : false;
-                          // if (selected) console.log(kom.komnavn);
+                          
                           return (
                             <option key={kom.komkode} value={kom.komkode}>
                               {kom.komnavn}
