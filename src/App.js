@@ -205,7 +205,7 @@ class App extends Component {
     const uniqueVals = this.state.uniqueVals;
     const filteredCategories = Object.keys(uniqueVals);
     let filters = {};
-     filteredCategories.forEach(cat =>{
+    filteredCategories.forEach(cat =>{
       let temp = uniqueVals[cat];
       
       filters[cat] = temp.filter(obj => {
