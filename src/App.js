@@ -443,18 +443,32 @@ class App extends Component {
   getData(komkode, startDate, endDate) {
     this.setState(preveState => ({ csvData: [], loading: true }));
     let that = this;
+    let sessionId = this.state.sessionId;
+    let postData = {
+      session_id: sessionId,
+      komkode : komkode,
+      startdate: startDate,
+      enddate: endDate,
+      database:"ballerup"
+    };
+
+    let jsonData = JSON.stringify(postData);
+
     if (!komkode) {
       this.setState({ loading: false });
       return;
     }
+
+    let newUrl = "https://offentligedata.admin.gc2.io/extensions/offentligedata/api/request"
     let dataUrl =
       "https://drayton.mapcentia.com/api/v1/sql/ballerup?q=SELECT * FROM cvr.flyt_fad_dev(" +
       komkode +
       ",'"+ startDate +"','"+ endDate +"')&srs=4326";
       jQuery.ajax({
-      url: dataUrl,
-      type: "GET",
-      dataType: "jsonp",
+      url: newUrl, // dataUrl,
+      type: "POST",
+      dataType: "json",
+      data: jsonData,
       success: function(res) {
         let csv = res.features.map(feature => feature.properties);
         res.features.forEach(feature => {
