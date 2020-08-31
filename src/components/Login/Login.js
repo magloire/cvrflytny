@@ -53,9 +53,9 @@ function LoginComponent(props){
                 <TextField 
                     className={classes.textField} 
                     id="standard-basic" 
-                    label="E-mail" 
-                    name="email"
-                    value={loginData.email.value}
+                    label="Brugernavn" 
+                    name="user"
+                    value={loginData.user.value}
                    // error={loginData.email.value.length < 3}
                     onChange={handleInputChange}
                     />

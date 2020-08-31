@@ -193,7 +193,7 @@ class App extends Component {
       isRegisterFormShown : false,
       sessionId : "",
       loginData:{
-        email:{value:"", error:false, helperText:"*"},
+        user:{value:"", error:false, helperText:"*"},
         password: {value:"", error:false, helperText:"*"}
       },
       // registrationData: {
@@ -320,22 +320,28 @@ class App extends Component {
     this.setState({ filterOpen: !this.state.filterOpen });
   }
 
-  handleLogin(){
-    this.setState({sessionId : "loggedin"});
-  }
+  
 
   
 
   handleLogout(){
-    this.setState({
-      sessionId : "",
-      data: [],
-      csvData : [],
-      dataToRender : []
+    let that = this;
+    let sessionUrl = "https://offentligedata.admin.gc2.io/api/v2/session/stop";
+    jQuery.get(sessionUrl,function(res){
+      if(res && res.success){
+        that.setState({
+          sessionId : "",
+          data: [],
+          csvData : [],
+          dataToRender : []
+        });
+        if(window.lfMap && window.geojsonLayer){ console.log("removelayer called");
+          window.lfMap.removeLayer(window.geojsonLayer);
+        }
+      }
     });
-    if(window.lfMap && window.geojsonLayer){ console.log("removelayer called");
-      window.lfMap.removeLayer(window.geojsonLayer);
-    }
+
+    
   }
 
   handleDrawerOpen() {
@@ -365,6 +371,24 @@ class App extends Component {
     });
   }
 
+  handleLogin(){
+    let that = this;
+    let sessionUrl = "https://offentligedata.admin.gc2.io/api/v2/session/start";
+    let _loginData = {
+      user: that.state.loginData.user.value,
+      password: that.state.loginData.password.value,
+      schema: "ballerup"
+    };
+
+    jQuery.get(sessionUrl, _loginData, function(res){
+      if(res && res.success){
+        that.setState({sessionId: res.data.session_id});
+        console.log("login succeeded, session id: ", res.data.session_id);
+      }
+    },"json");
+    //this.setState({sessionId : "loggedin"});
+  }
+
   handleRegister(userObj){
     let that = this;
     let userUrl = "https://offentligedata.admin.gc2.io/api/v2/user";
@@ -391,6 +415,7 @@ class App extends Component {
     jQuery.post(userUrl, JSON.stringify(data), function(res){
       console.log("data posted successfully!");
       console.log(res);
+      that.handleCreateDialogClose();
       if(res && res.success){
         jQuery.get(sessionUrl, _loginData, function(res){
           if(res && res.success){
