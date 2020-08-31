@@ -9,6 +9,8 @@ const style = {
 
 var geojsonLayer;
 var map;
+window.geojsonLayer = geojsonLayer;
+window.lfMap = map;
 
 var legend = L.control({ position: "bottomleft" });
 legend.onAdd = function(map) {
@@ -59,9 +61,9 @@ class MapData extends React.Component {
 
        }
     );
-    map = L.map("map", {
+    window.lfMap = L.map("map", {
       center: [55.876823, 9.961644],//[55.2, 12.2],
-      zoom: 7,
+      zoom: 8,
       layers: [
         toposkaermkortwmts,
         kommuneWms,
@@ -86,12 +88,12 @@ class MapData extends React.Component {
     //   legend.addTo(map);
     // }
 
-     L.control.scale().addTo(map);
+     L.control.scale().addTo(window.lfMap);
   }
   renderFeatures(data) {
     //console.log('renderfeatures'); console.log(data);
    // this.setState({renderLegend : true});
-   legend.addTo(map);
+   legend.addTo(window.lfMap);
     var costumIcon = function(status) {
       function selector(status) {
         switch (status) {
@@ -116,8 +118,10 @@ class MapData extends React.Component {
       });
     };
 
-    if (geojsonLayer !== undefined) {
-      map.removeLayer(geojsonLayer);
+    if (
+      window.geojsonLayer !== undefined) {
+      window.lfMap.removeLayer(
+        window.geojsonLayer);
     }
 
     function getCenterPoint(data) {
@@ -139,7 +143,7 @@ class MapData extends React.Component {
       );
     }
 
-    geojsonLayer = L.geoJSON(data, {
+    window.geojsonLayer = L.geoJSON(data, {
       onEachFeature: onEachFeature,
       pointToLayer: function(feature, latlng) {
         //return L.circleMarker(latlng, geojsonMarkerOptions);
@@ -147,11 +151,12 @@ class MapData extends React.Component {
           icon: costumIcon(feature.properties.status)
         });
       }
-    }).addTo(map);
+    }).addTo(window.lfMap);
 
     let centerCoords = getCenterPoint(data);
-    if (centerCoords) map.setView([centerCoords[1], centerCoords[0]], 12);
-    else map.fitBounds(geojsonLayer.getBounds());
+    if (centerCoords) window.lfMap.setView([centerCoords[1], centerCoords[0]], 12);
+    else window.lfMap.fitBounds(
+      window.geojsonLayer.getBounds());
   }
   componentDidMount() {
     this.renderMap(this.props.data);
@@ -199,7 +204,8 @@ class MapData extends React.Component {
     };
     //check if there is markers on the map and remove
     if (geojsonLayer !== undefined) {
-      map.removeLayer(geojsonLayer);
+      window.lfMap.removeLayer(
+        window.geojsonLayer);
     }
 
     function onEachFeature(feature, layer) {
@@ -215,14 +221,15 @@ class MapData extends React.Component {
       );
     }
 
-    geojsonLayer = L.geoJSON(data, {
+    
+window.geojsonLayer = L.geoJSON(data, {
       onEachFeature: onEachFeature,
       pointToLayer: function(feature, latlng) {
         return L.marker(latlng, {
           icon: costumIcon(feature.properties.status)
         });
       }
-    }).addTo(map);
+    }).addTo(window.lfMap);
 
     // console.log(geojsonLayer.getBounds());
     // map.fitBounds(geojsonLayer.getBounds());

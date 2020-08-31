@@ -8,6 +8,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
 import SendIcon from "@material-ui/icons/Send";
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import Typography from "@material-ui/core/Typography";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
@@ -23,9 +24,14 @@ import BarChart from "@material-ui/icons/BarChart";
 import MomentUtils from "@date-io/moment";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import { DatePicker } from "@material-ui/pickers";
+import Button from "@material-ui/core/Button";
+import Link from '@material-ui/core/Link';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 import MapData from "./Map.js";
 import GridData from "./Grid.js";
 import GraphData from "./Graph.js";
+import Title from "./components/Title";
 
 import "./App.css";
 import classnames from "classnames";
@@ -34,6 +40,9 @@ import jQuery from "jquery";
 import { navigate } from "@reach/router";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import TemporaryDrawer from "./Drawer";
+import LoginComponent from "./components/Login/Login";
+import CreateUserDialog from "./components/Register/create";
+import Logout from "./components/Logout";
 
 moment.locale("da");
 
@@ -179,7 +188,23 @@ class App extends Component {
       alertOpen: false,
       alertMessage: '',
       uniqueVals: {},
-      dataToRender: [] 
+      dataToRender: [],
+      isLoginShown : true,
+      isRegisterFormShown : false,
+      sessionId : "",
+      loginData:{
+        email:{value:"", error:false, helperText:"*"},
+        password: {value:"", error:false, helperText:"*"}
+      },
+      // registrationData: {
+      //   name: {value:"", error:false, helperText:"*"},
+      //   email: {value:"", error:false, helperText:"*"},
+      //   organisation:{value:"", error:false, helperText:"*"},
+      //   password:{value:"", error:false, helperText:"*"},
+      //   password2:{value:"", error:false, helperText:"*"},
+      //   consent: {value:true, error:false, helperText:"*"},
+      //   btnDisabled : true
+      // } 
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -195,10 +220,34 @@ class App extends Component {
     this.updateRenderDataFromTable = this.updateRenderDataFromTable.bind(this);
     this.doFilter = this.doFilter.bind(this);
     this.onAlertClose = this.onAlertClose.bind(this);
+    this.handleCreateDialogOpen = this.handleCreateDialogOpen.bind(this);
+    this.handleCreateDialogClose = this.handleCreateDialogClose.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
+    this.handleRegister = this.handleRegister.bind(this);
+    this.handleLoginDatachange = this.handleLoginDatachange.bind(this);
   }
 
   onAlertClose(){
     this.setState({alertOpen: false});
+  }
+
+  handleLoginDatachange(event){
+    let that = this;
+    console.log("I was called!!!");
+      const target = event.target;
+        const value = target.value;
+        const name = target.name;
+
+        that.setState({
+          loginData: {
+            ...this.state.loginData,
+            [name]: {
+                ...this.state.loginData[name],
+                value:value
+            }
+          }
+        });
   }
 
   doFilter(){
@@ -271,6 +320,24 @@ class App extends Component {
     this.setState({ filterOpen: !this.state.filterOpen });
   }
 
+  handleLogin(){
+    this.setState({sessionId : "loggedin"});
+  }
+
+  
+
+  handleLogout(){
+    this.setState({
+      sessionId : "",
+      data: [],
+      csvData : [],
+      dataToRender : []
+    });
+    if(window.lfMap && window.geojsonLayer){ console.log("removelayer called");
+      window.lfMap.removeLayer(window.geojsonLayer);
+    }
+  }
+
   handleDrawerOpen() {
     this.setState({ drawerOpen: !this.state.drawerOpen });
   }
@@ -278,7 +345,9 @@ class App extends Component {
   handleFilterClose() {
     this.setState({ filterOpen: false });
   }
-
+ /*
+  https://drayton.mapcentia.com/api/v1/sql/ballerup?q=select right(komkode, 3)::int komkode,komnavn from data.kommune group by komkode, komnavn order by komnavn
+ */
   getKommuner() {
     let komUrl =
       "https://drayton.mapcentia.com/api/v1/sql/ballerup?q=select right(komkode, 3)::int komkode, " +
@@ -294,6 +363,56 @@ class App extends Component {
         that.setState(preveState => ({ kommuner: koms }));
       }
     });
+  }
+
+  handleRegister(userObj){
+    let that = this;
+    let userUrl = "https://offentligedata.admin.gc2.io/api/v2/user";
+    let sessionUrl = "https://offentligedata.admin.gc2.io/api/v2/session/start";
+
+    let data = {
+      name: userObj.name,
+      email: userObj.email,
+      password: userObj.password,
+      subuser: true,
+      usergroup: "My group",
+      parentdb: "ballerup",
+      properties: {
+        org: userObj.organisation
+      }
+    }
+
+    let _loginData = {
+      user: userObj.name,
+      password: userObj.password,
+      schema: "ballerup"
+    }
+
+    jQuery.post(userUrl, JSON.stringify(data), function(res){
+      console.log("data posted successfully!");
+      console.log(res);
+      if(res && res.success){
+        jQuery.get(sessionUrl, _loginData, function(res){
+          if(res && res.success){
+            that.setState({sessionId: res.data.session_id});
+            console.log("login succeeded, session id: ", res.data.session_id);
+          }
+        },"json");
+      }
+
+    },
+    "json");
+
+    // jQuery.ajax({
+    //   url: userUrl,
+    //   type: "POST",
+    //   dataType: "jsonp",
+    //   success: function(res){
+
+    //   }
+
+    // });
+    this.setState({sessionId : "loggedin"});
   }
 
   getData(komkode, startDate, endDate) {
@@ -368,6 +487,21 @@ class App extends Component {
     });
   }
 
+  handleCreateDialogOpen(){
+    console.log("Createdialog open")
+    this.setState({
+      isRegisterFormShown : true,
+      isLoginShown : false
+    });
+  }
+
+  handleCreateDialogClose(){
+    this.setState({
+      isRegisterFormShown : false,
+      isLoginShown : true  
+    });
+  }
+
   render() {
     const { value, startDate, endDate, kommuner, komkode } = this.state;
     const locale = "da";
@@ -385,72 +519,110 @@ class App extends Component {
             doFilter={this.doFilter}
             filterWords={filterWords}
           />
+
+          <CreateUserDialog 
+            handleRegister = {this.handleRegister}
+            isRegisterFormShown={this.state.isRegisterFormShown}
+            handleCreateDialogClose={this.handleCreateDialogClose}
+            handleCreateDialogOpen={this.handleCreateDialogOpen}
+          />
           <div className="">
             <AppBar position="static" color="default">
               <Toolbar>
                 <Grid container>
-                  <Grid item xs={3}>
-                    <Typography variant="h6" color="inherit">
-                      CVR Flyttemønster
-                    </Typography>
-                  </Grid>
                   <Grid item xs={2}>
-                    <form
-                      className={classnames.container}
-                      noValidate
-                      autoComplete="off"
-                    >
-                      <TextField
-                        id="standard-select"
-                        select
-                        label="Kommune"
-                        placeholder="Placeholder"
-                        className={classnames.textField}
-                        value={this.state.komkode || ""}
-                        onChange={this.handleSelect}
-                        SelectProps={{
-                          native: true
-                        }}
-                        helperText=""
-                        InputLabelProps={{ shrink: true }}
+                    <Title/>
+                  </Grid>
+                  {this.state.sessionId === "" && (
+                    <>
+                  {/* <Grid item xs={7}> */}
+                    <LoginComponent 
+                      loginData={this.state.loginData}
+                      handleLoginDatachange = {this.handleLoginDatachange} 
+                    /> 
+                  {/* </Grid> */}
+                  <Grid item xs={1}>
+                      <Button variant="contained" color="primary" size="small" onClick={this.handleLogin}>
+                      Log på
+                      </Button> 
+                  </Grid> 
+                  {/* <Grid item xs={1}>eller</Grid> */}
+                   <Grid item xs={2}>
+                   eller &nbsp;<Link color="inherit" underline="always" component="button" onClick={this.handleCreateDialogOpen} size="small">Opret dig som bruger</Link>
+                    </Grid>
+                  {/*<Grid item xs={2}>
+                    
+                {/*</Grid>*/}
+                </>
+                  )}
+                  
+                  {this.state.sessionId !== "" && (
+
+
+                    <>
+                    <Grid item xs={2}>
+                      <form
+                        className={classnames.container}
+                        noValidate
+                        autoComplete="off"
                       >
-                        {kommuner.map(kom => {
-                          
-                          return (
-                            <option key={kom.komkode} value={kom.komkode}>
-                              {kom.komnavn}
-                            </option>
-                          );
-                        })}
-                      </TextField>
-                    </form>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <MuiPickersUtilsProvider
-                      utils={MomentUtils}
-                      locale={locale}
-                      moment={moment}
-                    >
-                      <DatePicker
-                        value={startDate}
-                        label="Startdato"
-                        format="DD MMM YYYY"
-                        onChange={this.handleStart}
-                      />
-                    </MuiPickersUtilsProvider>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <MuiPickersUtilsProvider utils={MomentUtils}>
-                      <DatePicker
-                        value={endDate}
-                        label="Slutdato"
-                        format="DD MMM YYYY"
-                        onChange={this.handleEnd}
-                      />
-                    </MuiPickersUtilsProvider>
-                  </Grid>
-                  {/* <Grid item xs={1}></Grid> */}
-                  <Grid item xs={3}>
+                        <TextField
+                          id="standard-select"
+                          select
+                          label="Kommune"
+                          placeholder="Placeholder"
+                          className={classnames.textField}
+                          value={this.state.komkode || ""}
+                          onChange={this.handleSelect}
+                          SelectProps={{
+                            native: true
+                          }}
+                          helperText=""
+                          InputLabelProps={{ shrink: true }}
+                        >
+                          {kommuner.map(kom => {
+                            
+                            return (
+                              <option key={kom.komkode} value={kom.komkode}>
+                                {kom.komnavn}
+                              </option>
+                            );
+                          })}
+                        </TextField>
+                      </form>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <MuiPickersUtilsProvider
+                        utils={MomentUtils}
+                        locale={locale}
+                        moment={moment}
+                      >
+                        <DatePicker
+                          value={startDate}
+                          label="Startdato"
+                          format="DD MMM YYYY"
+                          onChange={this.handleStart}
+                        />
+                      </MuiPickersUtilsProvider>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <MuiPickersUtilsProvider utils={MomentUtils}>
+                        <DatePicker
+                          value={endDate}
+                          label="Slutdato"
+                          format="DD MMM YYYY"
+                          onChange={this.handleEnd}
+                        />
+                      </MuiPickersUtilsProvider>
+                    </Grid>
+                    
+                    </>  
+                  )}
+
+                  {this.state.sessionId !== "" &&(
+                    <>
+                    
+                   <Grid item xs={3}>
                     <IconButton
                       arial-label="Done"
                       onClick={this.handleDoneClick}
@@ -507,59 +679,17 @@ class App extends Component {
                           />
                         </ExcelSheet>
                       </ExcelFile>
-                    )}                
-                  </Grid>
-
-                  {/* <Grid item xs={2}>
-                    <IconButton
-                      arial-label="Filter"
-                      onClick={this.handleDrawerOpen}
-                    >
-                      <FilterListIcon />
-                    </IconButton>
-                  </Grid> */}
-
-                  {/* <Grid item xs={2}>
-                    {this.state.csvData.length > 0 && (
-                      <ExcelFile
-                        element={
-                          <IconButton arial-label="Excel">
-                            <CloudDownload />
-                          </IconButton>
-                        }
-                        filename={
-                          "export_" + komkode + "_" + startDate + "_" + endDate
-                        }
-                      >
-                        <ExcelSheet data={this.state.csvData} name="CVR">
-                          <ExcelColumn label="Status" value="status" />
-                          <ExcelColumn label="CVR nummer" value="cvr-nummer" />
-                          <ExcelColumn label="P nummer" value="p-nummer" />
-                          <ExcelColumn label="Branche" value="hovedbranche" />
-                          <ExcelColumn label="virksomhedsform" value="virksomhedsform" />
-                          <ExcelColumn label="Virksomhedsnavn" value="navn" />
-                          <ExcelColumn
-                            label="Kontaktperson"
-                            value="fuldt ansvarlige deltagere"
-                          />
-                          <ExcelColumn label="kvartalbes_interval" value="Antal ansatte" />
-                          <ExcelColumn
-                            label="Kommunekode"
-                            value="kommunekode"
-                          />
-                          <ExcelColumn label="vejnavn" value="vejnavn" />
-                          <ExcelColumn label="Husnummer" value="husnummer" />
-                          <ExcelColumn label="Postnummer" value="postnummer" />
-                          <ExcelColumn label="By" value="postdistrikt" />
-                          <ExcelColumn label="Email" value="emailadresse" />
-                          <ExcelColumn
-                            label="Indlæst dato"
-                            value="indlæst dato"
-                          />
-                        </ExcelSheet>
-                      </ExcelFile>
                     )}
-                  </Grid> */}
+                                    
+                  </Grid> 
+                  <Grid item xs={1}>
+                    <Logout handleLogout={this.handleLogout}/>
+                  </Grid>
+                    </>
+                  )}    
+                  
+
+                  
                 </Grid>
               </Toolbar>
             </AppBar>
