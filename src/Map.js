@@ -4,7 +4,7 @@ import L from "leaflet";
 
 const style = {
   width: "100%",
-  height: "600px"
+  height: "1200px"
 };
 
 var geojsonLayer;
