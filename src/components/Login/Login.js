@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
+import { InputLabel } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
 
@@ -50,11 +51,15 @@ function LoginComponent(props){
     return (
         <>
             <Grid item xs={3}>
+                <InputLabel>Brugernavn</InputLabel>
                 <TextField 
-                    className={classes.textField} 
+                     
                     id="standard-basic" 
-                    label="Brugernavn" 
+                    label="" 
                     name="user"
+                    variant="standard"
+                    placeholder=""
+                    InputLabelProps={{shrink:false}}
                     value={loginData.user.value}
                    // error={loginData.email.value.length < 3}
                     onChange={handleInputChange}
@@ -62,12 +67,14 @@ function LoginComponent(props){
             </Grid>
             
             <Grid item xs={3}>
+                <InputLabel>Adgangskode</InputLabel>
                 <TextField 
                     type="password" 
-                    className={classes.textField} 
+                     
                     id="standard-basic" 
-                    label="Adgangskode" 
+                    label="" 
                     name="password"
+                    variant="standard"
                    // error={loginData.password.value.length < 3}
                     value={loginData.password.value}
                     onChange={handleInputChange}
