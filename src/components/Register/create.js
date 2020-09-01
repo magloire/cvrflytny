@@ -15,12 +15,12 @@ export default function CreateUserDialog(props) {
   const [open, setOpen] = React.useState(false);
 
   const [userInfo, setUserInfo] = React.useState({
-    name: {value:"", error:false, helperText:"*"},
-    email: {value:"", error:false, helperText:"*"},
-    organisation:{value:"", error:false, helperText:"*"},
-    password:{value:"", error:false, helperText:"*"},
-    password2:{value:"", error:false, helperText:"*"},
-    consent: {value:true, error:false, helperText:"*"},
+    name: {value:"", error:false, helperText:""},
+    email: {value:"", error:false, helperText:""},
+    organisation:{value:"", error:false, helperText:""},
+    password:{value:"", error:false, helperText:""},
+    password2:{value:"", error:false, helperText:""},
+    consent: {value:true, error:false, helperText:""},
     btnDisabled : true
   });
 
@@ -82,7 +82,7 @@ export default function CreateUserDialog(props) {
       [name]:{
         ...userInfo[name],
         value:value,
-        error: displayError(name)
+      //  error: displayError(name)
       },
       btnDisabled: isDisabled()
     });
@@ -191,13 +191,13 @@ export default function CreateUserDialog(props) {
           {!userInfo.consent.value &&
             <FormHelperText error>Du skal give samtykke</FormHelperText>
           }
-          {userInfo.btnDisabled &&
+          {/* {userInfo.btnDisabled &&
             <FormHelperText error>Alle felter skal udfyldes korrekt.</FormHelperText>
-          }
+          } */}
         </DialogContent>
         <DialogActions style={{justifyContent: 'center'}} >
           
-          <Button  disabled={userInfo.btnDisabled} variant="contained" onClick={handleRegister} color="primary">
+          <Button  disabled={!userInfo.consent.value} variant="contained" onClick={handleRegister} color="primary">
             Opret
           </Button>
         </DialogActions>
