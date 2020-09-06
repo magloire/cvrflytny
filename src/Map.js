@@ -91,20 +91,20 @@ class MapData extends React.Component {
      L.control.scale().addTo(window.lfMap);
   }
   renderFeatures(data) {
-    //console.log('renderfeatures'); console.log(data);
-   // this.setState({renderLegend : true});
    legend.addTo(window.lfMap);
     var costumIcon = function(status) {
       function selector(status) {
+        const imgUrl = "https://raw.githubusercontent.com/magloire/cvrflytny/master/public/";
         switch (status) {
           case "Tilflytter":
-            return "img/t.png";
+            
+            return imgUrl + "img/t.png";
           case "Fraflytter":
-            return "img/f.png";
+            return imgUrl + "img/f.png";
           case "Nystartet":
-            return "img/n.png";
+            return imgUrl + "img/n.png";
           case "Ophørt":
-            return "img/o.png";
+            return imgUrl + "img/o.png";
           default:
             break;
         }
@@ -203,13 +203,13 @@ class MapData extends React.Component {
       });
     };
     //check if there is markers on the map and remove
-    if (geojsonLayer !== undefined) {
+    if (window.geojsonLayer !== undefined) {
       window.lfMap.removeLayer(
         window.geojsonLayer);
     }
 
     function onEachFeature(feature, layer) {
-      //console.log(layer);
+      console.log("called for each feature");
       layer.bindPopup(
         "<strong>" +
           feature.properties.status +

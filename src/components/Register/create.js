@@ -9,6 +9,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 
 export default function CreateUserDialog(props) {
@@ -104,6 +109,7 @@ export default function CreateUserDialog(props) {
 
   // const handleOpen = props.handleCreateDialogOpen;
   const handleDialogClose = props.handleCreateDialogClose;
+  const errorMessage = props.errorMessage;
 
   return (
     <div>
@@ -112,15 +118,16 @@ export default function CreateUserDialog(props) {
         <DialogTitle id="form-dialog-title">Opret dig som bruger</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            
           </DialogContentText>
+          {
+            errorMessage && <Alert severity="error">{errorMessage}</Alert>
+          }
           <TextField
             autoFocus
             margin="dense"
             name="name"
             id="name"
             label="Navn:"
-            type="email"
             value={userInfo.name.value}
             error={userInfo.name.error}
             helperText={userInfo.name.helperText}
@@ -133,7 +140,6 @@ export default function CreateUserDialog(props) {
             id="organisation"
             name="organisation"
             label="Organisation:"
-            type="email"
             value={userInfo.organisation.value}
             onChange={handleInputChange}
             error={userInfo.organisation.error}
@@ -145,7 +151,7 @@ export default function CreateUserDialog(props) {
             margin="dense"
             id="email"
             name="email"
-            label="Email Address"
+            label="Email / brugernavn"
             type="email"
             value={userInfo.email.value}
             error={userInfo.email.error}
@@ -194,6 +200,8 @@ export default function CreateUserDialog(props) {
           {/* {userInfo.btnDisabled &&
             <FormHelperText error>Alle felter skal udfyldes korrekt.</FormHelperText>
           } */}
+          
+          
         </DialogContent>
         <DialogActions style={{justifyContent: 'center'}} >
           

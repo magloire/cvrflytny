@@ -191,11 +191,12 @@ class App extends Component {
       dataToRender: [],
       isLoginShown : true,
       isRegisterFormShown : false,
-      sessionId : "",
+      sessionId : sessionStorage.getItem("sessionId") || "",
       loginData:{
         user:{value:"", error:false, helperText:"*"},
         password: {value:"", error:false, helperText:"*"}
       },
+      registrationErrorMessage: ""
       // registrationData: {
       //   name: {value:"", error:false, helperText:"*"},
       //   email: {value:"", error:false, helperText:"*"},
@@ -329,6 +330,7 @@ class App extends Component {
     let sessionUrl = "https://offentligedata.admin.gc2.io/api/v2/session/stop";
     jQuery.get(sessionUrl,function(res){
       if(res && res.success){
+        sessionStorage.removeItem("sessionId");
         that.setState({
           sessionId : "",
           data: [],
@@ -358,7 +360,7 @@ class App extends Component {
     let komUrl =
       "https://drayton.mapcentia.com/api/v1/sql/ballerup?q=select right(komkode, 3)::int komkode, " +
       "komnavn from data.kommune group by komkode, komnavn order by komnavn";
-    komUrl = "kom.json";
+    //komUrl = "kom.json";
     let that = this;
     jQuery.ajax({
       url: komUrl,
@@ -382,6 +384,7 @@ class App extends Component {
 
     jQuery.get(sessionUrl, _loginData, function(res){
       if(res && res.success){
+        sessionStorage.setItem("sessionId", res.data.session_id);
         that.setState({sessionId: res.data.session_id});
         console.log("login succeeded, session id: ", res.data.session_id);
       }
@@ -395,38 +398,47 @@ class App extends Component {
     let sessionUrl = "https://offentligedata.admin.gc2.io/api/v2/session/start";
 
     let data = {
-      name: userObj.name,
+      name: userObj.email,
       email: userObj.email,
       password: userObj.password,
       subuser: true,
       usergroup: "My group",
       parentdb: "ballerup",
       properties: {
-        org: userObj.organisation
+        org: userObj.organisation,
+        name: userObj.name
       }
     }
 
     let _loginData = {
-      user: userObj.name,
+      user: userObj.email,
       password: userObj.password,
       schema: "ballerup"
     }
-
+    console.log("before posting data");
     jQuery.post(userUrl, JSON.stringify(data), function(res){
       console.log("data posted successfully!");
       console.log(res);
-      that.handleCreateDialogClose();
       if(res && res.success){
         jQuery.get(sessionUrl, _loginData, function(res){
           if(res && res.success){
+            that.handleCreateDialogClose();
+            sessionStorage.setItem("sessionId", res.data.session_id);
             that.setState({sessionId: res.data.session_id});
             console.log("login succeeded, session id: ", res.data.session_id);
           }
         },"json");
+      }else if(res && !res.success){
+        
       }
 
     },
-    "json");
+    "json")
+    .fail(function(res){
+      console.log("login failed, message => ", res.responseJSON.message);
+      that.setState({registrationErrorMessage: res.responseJSON.message});
+    })
+    ;
 
     // jQuery.ajax({
     //   url: userUrl,
@@ -437,7 +449,7 @@ class App extends Component {
     //   }
 
     // });
-    this.setState({sessionId : "loggedin"});
+   // this.setState({sessionId : "loggedin"});
   }
 
   getData(komkode, startDate, endDate) {
@@ -465,9 +477,9 @@ class App extends Component {
       komkode +
       ",'"+ startDate +"','"+ endDate +"')&srs=4326";
       jQuery.ajax({
-      url: newUrl, // dataUrl,
+      url: dataUrl, // dataUrl,
       type: "POST",
-      dataType: "json",
+      dataType: "jsonp",
       data: jsonData,
       success: function(res) {
         let csv = res.features.map(feature => feature.properties);
@@ -494,7 +506,7 @@ class App extends Component {
     this.setState(prevState => ({ komkode: event.target.value }));
   }
 
-  componentDidMount() {
+  componentDidMount() { console.log("");
     let { komkode, startDate, endDate } = this.state;
     this.getData(komkode, startDate, endDate);
     this.getKommuner();
@@ -564,6 +576,7 @@ class App extends Component {
             isRegisterFormShown={this.state.isRegisterFormShown}
             handleCreateDialogClose={this.handleCreateDialogClose}
             handleCreateDialogOpen={this.handleCreateDialogOpen}
+            errorMessage={this.state.registrationErrorMessage}
           />
           <div className="">
             <AppBar position="static" color="default">
