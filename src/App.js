@@ -436,7 +436,7 @@ class App extends Component {
     "json")
     .fail(function(res){
       console.log("login failed, message => ", res.responseJSON.message);
-      that.setState({registrationErrorMessage: res.responseJSON.message});
+      that.setState({registrationErrorMessage: that.getErrorMessage(res.responseJSON.errorCode)});
     })
     ;
 
@@ -452,6 +452,22 @@ class App extends Component {
    // this.setState({sessionId : "loggedin"});
   }
 
+  getErrorMessage(errorMessage){
+    switch(errorMessage){
+      case 'SUB_USER_ALREADY_EXISTS':
+        return '';
+      case 'PARENT_USER_EXISTS_WITH_NAME':
+        return '';
+      case 'USER_ALREADY_EXISTS':
+        return '';
+      case 'EMAIL_ALREADY_EXISTS':
+        return 'E-mail er i brug. Du skal en anden e-mail adresse';
+      case 'WEAK_PASSWORD':
+        return 'Adgangskode skal opfylde følgende kriterier: mindst 8 tegn langt, mindt 1 tal og mindst 1 stort bagstav';
+      default:
+        return 'Der var en fejl ved oprettelse. Prøv igen.'
+    }
+  }
   getData(komkode, startDate, endDate) {
     this.setState(preveState => ({ csvData: [], loading: true }));
     let that = this;
