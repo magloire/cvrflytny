@@ -196,7 +196,8 @@ class App extends Component {
         user:{value:"", error:false, helperText:"*"},
         password: {value:"", error:false, helperText:"*"}
       },
-      registrationErrorMessage: ""
+      registrationErrorMessage: "",
+      loginErrorMessage:false
       // registrationData: {
       //   name: {value:"", error:false, helperText:"*"},
       //   email: {value:"", error:false, helperText:"*"},
@@ -385,10 +386,14 @@ class App extends Component {
     jQuery.get(sessionUrl, _loginData, function(res){
       if(res && res.success){
         sessionStorage.setItem("sessionId", res.data.session_id);
-        that.setState({sessionId: res.data.session_id});
+        that.setState({sessionId: res.data.session_id, loginErrorMessage : false});
         console.log("login succeeded, session id: ", res.data.session_id);
       }
-    },"json");
+    },"json")
+    .fail(function(res){
+      that.setState({loginErrorMessage : true});
+    })
+    ;
     //this.setState({sessionId : "loggedin"});
   }
 
@@ -514,6 +519,12 @@ class App extends Component {
           uniqueVals: uniqueValuesGroupedByKey(csv,filterWords)
         }));
       }
+      // ,
+      // timeout: 15000,
+      // error: function(xhr, textStatus, errorThrown){
+      //   console.log("error timeout!!!!");
+      //   that.setState({loading : false});
+      // }
     });
   }
 
@@ -607,6 +618,7 @@ class App extends Component {
                     <LoginComponent 
                       loginData={this.state.loginData}
                       handleLoginDatachange = {this.handleLoginDatachange} 
+                      errorMessage = {this.state.loginErrorMessage}
                     /> 
                   {/* </Grid> */}
                   <Grid item xs={1}>

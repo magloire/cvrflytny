@@ -47,6 +47,7 @@ function LoginComponent(props){
 
     const loginData = props.loginData;
     const handleInputChange = props.handleLoginDatachange;
+    const errorMessage = props.errorMessage;
 
     return (
         <>
@@ -61,7 +62,8 @@ function LoginComponent(props){
                     placeholder=""
                     InputLabelProps={{shrink:false}}
                     value={loginData.user.value}
-                   // error={loginData.email.value.length < 3}
+                    error={errorMessage}
+                    helperText={errorMessage ? "Der var fejl ved login. Prøv igen":""}
                     onChange={handleInputChange}
                     />
             </Grid>
