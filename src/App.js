@@ -407,7 +407,7 @@ class App extends Component {
       email: userObj.email,
       password: userObj.password,
       subuser: true,
-      usergroup: "My group",
+      usergroup: "erhvervsinfo",
       parentdb: "ballerup",
       properties: {
         org: userObj.organisation,
@@ -485,9 +485,9 @@ class App extends Component {
       komkode +
       ",'"+ startDate +"','"+ endDate +"')&srs=4326";
       jQuery.ajax({
-      url: dataUrl, // dataUrl,
+      url: newUrl, // dataUrl,
       type: "POST",
-      dataType: "jsonp",
+      dataType: "json",
       data: jsonData,
       success: function(res) {
         let csv = res.features.map(feature => feature.properties);
