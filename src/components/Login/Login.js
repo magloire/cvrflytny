@@ -52,7 +52,7 @@ function LoginComponent(props){
     return (
         <>
             <Grid item xs={3}>
-                <InputLabel>E-mail / brugernavn</InputLabel>
+                <InputLabel>E-mail/brugernavn</InputLabel>
                 <TextField 
                      
                     id="standard-basic" 

@@ -25,23 +25,11 @@ export default function CreateUserDialog(props) {
     organisation:{value:"", error:false, helperText:""},
     password:{value:"", error:false, helperText:""},
     password2:{value:"", error:false, helperText:""},
-    consent: {value:true, error:false, helperText:""},
+    consent: {value:false, error:false, helperText:""},
     btnDisabled : true
   });
 
-  // const [errors, setErrors] = React.useState({
-  //   name: false,
-  //   email: false,
-  //   organisation:false,
-  //   password:false,
-  //   password2:false,
-  // });
 
-  // const [isBtnDesabled, setIsBtnDisabled] = React.useState(false);
-
-  // const isDisabled = () => userInfo.name.error || userInfo.email.error
-  //                         || userInfo.organisation.error || userInfo.password.error
-  //                         || userInfo.password2.error || !userInfo.consent.value;
 
   const isDisabled = () =>  (displayError("name") || displayError("email") || displayError("organisation")
                               || displayError("password") || displayError("password2") || !userInfo.consent.value
@@ -60,22 +48,6 @@ export default function CreateUserDialog(props) {
     return false
     
   }
-
-  // const displayErrors = () => ({
-  //   name: userInfo.name.value.length < 2,
-  //   email: userInfo.email.value.length < 2,
-  //   organisation: userInfo.organisation.value.length < 2,
-  //   password: userInfo.password.value.length < 2,
-  //   password2 : userInfo.password.value !== userInfo.password2.value
-  // });
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
-
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
 
   const handleInputChange = (event) => {
     const target = event.target;
@@ -151,7 +123,7 @@ export default function CreateUserDialog(props) {
             margin="dense"
             id="email"
             name="email"
-            label="Email / brugernavn"
+            label="E-mail/brugernavn"
             type="email"
             value={userInfo.email.value}
             error={userInfo.email.error}
@@ -192,7 +164,7 @@ export default function CreateUserDialog(props) {
                         onChange={handleInputChange} />
             }
             
-            label="Med min oprettelse som bruger giver jeg mit samtykke til, at mine oplysninger bliver opbevaret, således at projektet kan kontakte mig, fx. ifm. driftforstyrelser, nye versioner, nye tiltag, mv."
+            label="Med min oprettelse som bruger giver jeg mit samtykke til, at mine oplysninger bliver opbevaret, således at projektet kan kontakte mig, fx. ifm. driftsforstyrrelser, nye versioner, nye tiltag, mv."
           />
           {!userInfo.consent.value &&
             <FormHelperText error>Du skal give samtykke</FormHelperText>

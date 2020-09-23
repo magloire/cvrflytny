@@ -445,30 +445,17 @@ class App extends Component {
     })
     ;
 
-    // jQuery.ajax({
-    //   url: userUrl,
-    //   type: "POST",
-    //   dataType: "jsonp",
-    //   success: function(res){
-
-    //   }
-
-    // });
-   // this.setState({sessionId : "loggedin"});
   }
 
   getErrorMessage(errorMessage){
     switch(errorMessage){
       case 'SUB_USER_ALREADY_EXISTS':
-        return '';
       case 'PARENT_USER_EXISTS_WITH_NAME':
-        return '';
       case 'USER_ALREADY_EXISTS':
-        return '';
       case 'EMAIL_ALREADY_EXISTS':
-        return 'E-mail er i brug. Du skal en anden e-mail adresse';
+        return 'E-mail/brugernavn er allerede taget.';
       case 'WEAK_PASSWORD':
-        return 'Adgangskode skal opfylde følgende kriterier: mindst 8 tegn langt, mindt 1 tal og mindst 1 stort bagstav';
+        return 'Adgangskode skal opfylde følgende kriterier: mindst 8 tegn langt, mindst 1 tal og mindst 1 stort bogstav';
       default:
         return 'Der var en fejl ved oprettelse. Prøv igen.'
     }
