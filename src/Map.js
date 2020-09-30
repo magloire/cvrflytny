@@ -57,7 +57,8 @@ class MapData extends React.Component {
          layers:"kommune",
          format:"image/png",
          token: kftoken,
-         transparent:true
+         transparent:true,
+         minZoom: 11
 
        }
     );
