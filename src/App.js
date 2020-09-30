@@ -380,7 +380,7 @@ class App extends Component {
     let _loginData = {
       user: that.state.loginData.user.value,
       password: that.state.loginData.password.value,
-      schema: "ballerup"
+      database: "ballerup"
     };
 
     jQuery.get(sessionUrl, _loginData, function(res){
@@ -418,7 +418,7 @@ class App extends Component {
     let _loginData = {
       user: userObj.email,
       password: userObj.password,
-      schema: "ballerup"
+      database: "ballerup"
     }
     console.log("before posting data");
     jQuery.post(userUrl, JSON.stringify(data), function(res){
