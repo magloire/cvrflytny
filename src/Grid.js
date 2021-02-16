@@ -11,7 +11,7 @@ import {
   IntegratedSorting,
   FilteringState,
   IntegratedFiltering,
-  DataTypeProvider
+  DataTypeProvider,
 } from "@devexpress/dx-react-grid";
 
 import {
@@ -19,10 +19,10 @@ import {
   VirtualTable,
   TableHeaderRow,
   TableFilterRow,
-  TableColumnResizing
+  TableColumnResizing,
 } from "@devexpress/dx-react-grid-material-ui";
 
-const getColor = status => {
+const getColor = (status) => {
   if (status === "Fraflytter") return "orange";
   else if (status === "Tilflytter") return "green";
   else if (status === "Nystartet") return "blue";
@@ -35,25 +35,24 @@ const StatusFormatter = ({ value }) => {
   return <b style={{ color: color }}>{value}</b>;
 };
 
-const StatusTypeProvider = props => (
+const StatusTypeProvider = (props) => (
   <DataTypeProvider formatterComponent={StatusFormatter} {...props} />
 );
 
 const PnummerFormatter = ({ value }) => {
   let link = `https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id=${value}`;
   return (
-    <a href={link} target="_blank" rel="noopener noreferrer">
+    <a href={link} target='_blank' rel='noopener noreferrer'>
       {value}
     </a>
   );
 };
 
-const PnummerProvider = props => (
+const PnummerProvider = (props) => (
   <DataTypeProvider formatterComponent={PnummerFormatter} {...props} />
 );
 
-
-const getRowId = row => {
+const getRowId = (row) => {
   return row["keyIndex"];
 };
 
@@ -66,10 +65,10 @@ class GridData extends React.PureComponent {
       sorting: [{ columnName: "hovedbranche", direction: "desc" }],
       statusColumns: ["status"],
       pcols: ["p-nummer"],
-      grouping: [{ columnName: "status" }]
+      grouping: [{ columnName: "status" }],
     };
-    this.changeSorting = sorting => this.setState({ sorting });
-    this.changeGrouping = grouping => this.setState({ grouping });
+    this.changeSorting = (sorting) => this.setState({ sorting });
+    this.changeGrouping = (grouping) => this.setState({ grouping });
   }
 
   componentDidMount() {}
@@ -88,7 +87,10 @@ class GridData extends React.PureComponent {
       { name: "virksomhedsform", title: "virksomhedsform" },
       { name: "navn", title: "Virksomhedsnavn" },
       { name: "fuldt ansvarlige deltagere", title: "Kontaktperson" },
-      { name: "kvartalbes_interval", title: "Antal ansatte" },
+      {
+        name: "maanedsbeskaeftigelse_antalansatteinterval",
+        title: "Antal ansatte",
+      },
       { name: "kommunekode", title: "Kommunekode" },
       { name: "vejnavn", title: "Vejnavn" },
       { name: "husnummer", title: "Husnummer" },
@@ -96,7 +98,7 @@ class GridData extends React.PureComponent {
       { name: "postdistrikt", title: "By" },
       { name: "emailadresse", title: "Email" },
       { name: "startdato", title: "Startdato cvr" },
-      { name: "indlæst dato", title: "Indlæst dato" }
+      { name: "indlæst dato", title: "Indlæst dato" },
     ];
 
     const defaultColumnWidths = [
@@ -115,18 +117,17 @@ class GridData extends React.PureComponent {
       { columnName: "postdistrikt", width: 120 },
       { columnName: "emailadresse", width: 120 },
       { columnName: "startdato", width: 120 },
-      { columnName: "indlæst dato", width: 120 }
+      { columnName: "indlæst dato", width: 120 },
     ];
 
     const { statusColumns } = this.state;
     const pc = this.state.pcols;
     const rows = this.props.data.map((feature, index) => {
       feature.properties["keyIndex"] = index;
-      let s = feature.properties['fuldt ansvarlige deltagere'];
-      if(s !== null && s.length > 0)
-        feature.properties['fuldt ansvarlige deltagere'] = s.replace(/"/g,'');
-      if(s === "NULL")
-        feature.properties['fuldt ansvarlige deltagere'] = "";
+      let s = feature.properties["fuldt ansvarlige deltagere"];
+      if (s !== null && s.length > 0)
+        feature.properties["fuldt ansvarlige deltagere"] = s.replace(/"/g, "");
+      if (s === "NULL") feature.properties["fuldt ansvarlige deltagere"] = "";
       return feature.properties;
     });
 
@@ -134,16 +135,18 @@ class GridData extends React.PureComponent {
     return (
       <Paper
         style={{
-          height: "100%"
+          height: "100%",
         }}
       >
-  <h6 style={{textAlign:"center"}}>{`${totalRendered} ud af ${total}`}</h6>
+        <h6
+          style={{ textAlign: "center" }}
+        >{`${totalRendered} ud af ${total}`}</h6>
         <Grid
           rows={rows}
           columns={cols}
           getRowId={getRowId}
           style={{
-            height: "100%"
+            height: "100%",
           }}
         >
           <FilteringState defaultFilters={[]} />
@@ -158,15 +161,15 @@ class GridData extends React.PureComponent {
           <TableColumnResizing defaultColumnWidths={defaultColumnWidths} />
           <TableHeaderRow showSortingControls />
           <TableFilterRow />
-          <Template name="root">  
-            <TemplateConnector>  
-              {({ rows: filteredRows }) => { 
-                console.log("filteredRows"); 
+          <Template name='root'>
+            <TemplateConnector>
+              {({ rows: filteredRows }) => {
+                console.log("filteredRows");
                 console.log(filteredRows);
-                updateData(filteredRows);  
-                return <TemplatePlaceholder />;  
-              }}  
-            </TemplateConnector>  
+                updateData(filteredRows);
+                return <TemplatePlaceholder />;
+              }}
+            </TemplateConnector>
           </Template>
         </Grid>
       </Paper>
